@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Search, CheckCircle2, Circle, PackageSearch } from 'lucide-react';
 import { getOrder, orders } from '@/data/orders';
+import { formatPKR } from '@/lib/currency';
 
 function TrackOrderInner() {
   const searchParams = useSearchParams();
@@ -121,7 +122,7 @@ function TrackOrderInner() {
                 {result.items.map((item) => (
                   <div key={item.id} className="flex justify-between text-[14px]">
                     <span className="text-ink-600">{item.name} &times; {item.qty}</span>
-                    <span className="font-medium">${(item.price * item.qty).toFixed(2)}</span>
+                    <span className="font-medium">{formatPKR(item.price * item.qty)}</span>
                   </div>
                 ))}
               </div>

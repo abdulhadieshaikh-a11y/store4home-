@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import ProductCard from './ProductCard';
+import { formatPKR } from '@/lib/currency';
 import { categories } from '@/data/categories';
 import { SlidersHorizontal, X } from 'lucide-react';
 
@@ -42,7 +43,7 @@ export default function ShopGrid({ products, activeCategory, initialQuery }) {
         </div>
       </div>
       <div>
-        <h3 className="text-[13px] font-semibold tracking-wide uppercase text-ink-600 mb-3.5">Max price: ${maxPrice}</h3>
+        <h3 className="text-[13px] font-semibold tracking-wide uppercase text-ink-600 mb-3.5">Max price: {formatPKR(maxPrice)}</h3>
         <input
           type="range"
           min="20"

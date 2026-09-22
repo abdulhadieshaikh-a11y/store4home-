@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Plus, Pencil, Trash2, Search } from 'lucide-react';
 import { products } from '@/data/products';
+import { formatPKR } from '@/lib/currency';
 import { getCategory } from '@/data/categories';
 
 export default function AdminProductsPage() {
@@ -47,7 +48,7 @@ export default function AdminProductsPage() {
                       </div>
                     </td>
                     <td className="py-3 px-5 text-ink-600">{cat?.name}</td>
-                    <td className="py-3 px-5 font-medium">${p.price.toFixed(2)}</td>
+                    <td className="py-3 px-5 font-medium">{formatPKR(p.price)}</td>
                     <td className="py-3 px-5">
                       <span className={p.stock < 15 ? 'text-gold-700 font-semibold' : 'text-ink-600'}>{p.stock}</span>
                     </td>

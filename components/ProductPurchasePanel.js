@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Minus, Plus, ShoppingBag, Truck, RotateCcw } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import StarRating from './StarRating';
+import { formatPKR } from '@/lib/currency';
 
 export default function ProductPurchasePanel({ product }) {
   const { addItem } = useCart();
@@ -48,8 +49,8 @@ export default function ProductPurchasePanel({ product }) {
         <h1 className="font-display text-[30px] leading-tight mb-2.5">{product.name}</h1>
         <StarRating rating={product.rating} reviews={product.reviews} size={15} />
         <div className="flex items-center gap-3 mt-4 mb-6">
-          <span className="text-[24px] font-semibold">${product.price.toFixed(2)}</span>
-          {product.compareAt && <span className="text-[16px] text-ink-400 line-through">${product.compareAt.toFixed(2)}</span>}
+          <span className="text-[24px] font-semibold">{formatPKR(product.price)}</span>
+          {product.compareAt && <span className="text-[16px] text-ink-400 line-through">{formatPKR(product.compareAt)}</span>}
           {product.compareAt && (
             <span className="text-[12.5px] font-semibold text-brand bg-brand-50 px-2 py-1 rounded-sm">
               Save {Math.round(100 - (product.price / product.compareAt) * 100)}%

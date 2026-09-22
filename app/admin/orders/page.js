@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { orders, orderStatuses } from '@/data/orders';
+import { formatPKR } from '@/lib/currency';
 import { StatusBadge } from '../page';
 
 export default function AdminOrdersPage() {
@@ -69,7 +70,7 @@ export default function AdminOrdersPage() {
                   <td className="py-3 px-5 text-ink-400">{o.date}</td>
                   <td className="py-3 px-5 text-ink-600">{o.payment}</td>
                   <td className="py-3 px-5"><StatusBadge status={o.status} /></td>
-                  <td className="py-3 px-5 text-right font-medium">${o.total.toFixed(2)}</td>
+                  <td className="py-3 px-5 text-right font-medium">{formatPKR(o.total)}</td>
                 </tr>
               ))}
               {filtered.length === 0 && (

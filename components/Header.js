@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Search, ShoppingBag, User, Menu, X, PackageSearch } from 'lucide-react';
+import { Search, ShoppingBag, User, Menu, X, PackageSearch, LayoutDashboard } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { categories } from '@/data/categories';
 
@@ -55,6 +55,9 @@ export default function Header() {
           <Link href="/track-order" className="hidden sm:flex focus-ring rounded p-2 hover:bg-ink-50 transition-colors" aria-label="Track order" title="Track order">
             <PackageSearch size={20} />
           </Link>
+          <Link href="/admin" className="hidden sm:flex items-center gap-1.5 text-[13px] font-semibold text-brand hover:text-brand-700 transition-colors" title="Admin Dashboard">
+            <LayoutDashboard size={17} /> <span className="hidden lg:inline">Admin</span>
+          </Link>
           <Link href="/login" className="focus-ring rounded p-2 hover:bg-ink-50 transition-colors" aria-label="Account">
             <User size={20} />
           </Link>
@@ -99,6 +102,9 @@ export default function Header() {
               </Link>
               <Link href="/track-order" className="py-3 border-b border-line text-[15px]" onClick={() => setMobileOpen(false)}>
                 Track Order
+              </Link>
+              <Link href="/admin" className="py-3 border-b border-line text-[15px] font-semibold text-brand" onClick={() => setMobileOpen(false)}>
+                Admin Dashboard
               </Link>
             </nav>
           </div>

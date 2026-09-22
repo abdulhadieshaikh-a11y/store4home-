@@ -31,8 +31,8 @@ export default function AdminSettingsPage() {
           </div>
           <div>
             <label className="text-[13px] font-semibold block mb-1.5">Currency</label>
-            <select defaultValue="USD" className="w-full border border-line rounded-sm px-3.5 py-2.5 text-[14px] outline-none focus:border-brand bg-white">
-              <option value="USD">USD ($)</option>
+            <select defaultValue="PKR" className="w-full border border-line rounded-sm px-3.5 py-2.5 text-[14px] outline-none focus:border-brand bg-white">
+              <option value="PKR">PKR (Rs)</option>
               <option value="PKR">PKR (Rs.)</option>
               <option value="AED">AED (د.إ)</option>
             </select>

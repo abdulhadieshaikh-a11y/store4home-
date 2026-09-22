@@ -6,6 +6,7 @@ import { CreditCard, Truck, Wallet, ArrowRight, ArrowLeft, Lock } from 'lucide-r
 import { useCart } from '@/context/CartContext';
 import { useCheckout } from '@/context/CheckoutContext';
 import { OrderSummary } from '../page';
+import { formatPKR } from '@/lib/currency';
 
 const methods = [
   { id: 'card', label: 'Credit / Debit Card', icon: CreditCard, sub: 'Visa, Mastercard, UnionPay' },
@@ -27,11 +28,10 @@ export default function PaymentStep() {
   const shippingCost = subtotal > 100 || subtotal === 0 ? 0 : 8;
   const total = subtotal + shippingCost;
 
-  function handlePlaceOrder(e) {
+  async function handlePlaceOrder(e) {
     e.preventDefault();
     const orderId = `S4H-${Math.floor(10000 + Math.random() * 89999)}`;
-    setPayment({ method });
-    setCompletedOrder({
+    const order = {
       id: orderId,
       date: new Date().toISOString().slice(0, 10),
       items,
@@ -40,7 +40,22 @@ export default function PaymentStep() {
       total,
       shipping,
       paymentMethod: methods.find((m) => m.id === method)?.label,
-    });
+    };
+    let emailSent = false;
+
+    try {
+      const response = await fetch('/api/send-order-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(order),
+      });
+      emailSent = response.ok;
+    } catch (error) {
+      console.error('Order confirmation email failed:', error);
+    }
+
+    setPayment({ method });
+    setCompletedOrder({ ...order, emailSent });
     clearCart();
     router.push('/checkout/confirmation');
   }
@@ -140,7 +155,7 @@ export default function PaymentStep() {
 
         {method === 'cod' && (
           <div className="border border-line rounded p-5 mb-7 text-[14px] text-ink-600 leading-relaxed">
-            Have <strong>${total.toFixed(2)}</strong> ready in cash when your order arrives. Our courier will confirm the amount before handing over the package.
+            Have <strong>{formatPKR(total)}</strong> ready in cash when your order arrives. Our courier will confirm the amount before handing over the package.
           </div>
         )}
 
@@ -162,7 +177,7 @@ export default function PaymentStep() {
             type="submit"
             className="flex-1 inline-flex items-center justify-center gap-2 bg-brand text-white font-semibold text-[14.5px] px-8 py-3.5 rounded-sm hover:bg-brand-700 transition-colors"
           >
-            Place order &mdash; ${total.toFixed(2)} <ArrowRight size={16} />
+            Place order &mdash; {formatPKR(total)} <ArrowRight size={16} />
           </button>
         </div>
       </form>

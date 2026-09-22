@@ -5,11 +5,16 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { UploadCloud, Save } from 'lucide-react';
 import { categories } from '@/data/categories';
+import { toPKR } from '@/lib/currency';
 
 export default function ProductForm({ initial }) {
   const router = useRouter();
   const [form, setForm] = useState(
-    initial || {
+    initial ? {
+      ...initial,
+      price: Math.round(toPKR(initial.price)),
+      compareAt: initial.compareAt ? Math.round(toPKR(initial.compareAt)) : '',
+    } : {
       name: '',
       category: categories[0].id,
       price: '',
@@ -79,7 +84,7 @@ export default function ProductForm({ initial }) {
           <h2 className="font-display text-[18px] mb-5">Pricing & inventory</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="text-[13px] font-semibold block mb-1.5">Price ($)</label>
+              <label className="text-[13px] font-semibold block mb-1.5">Price (PKR)</label>
               <input
                 type="number"
                 step="0.01"
@@ -90,7 +95,7 @@ export default function ProductForm({ initial }) {
               />
             </div>
             <div>
-              <label className="text-[13px] font-semibold block mb-1.5">Compare-at price</label>
+              <label className="text-[13px] font-semibold block mb-1.5">Compare-at price (PKR)</label>
               <input
                 type="number"
                 step="0.01"

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { formatPKR } from '@/lib/currency';
 import { useCheckout } from '@/context/CheckoutContext';
 
 export default function ShippingStep() {
@@ -116,22 +117,22 @@ export function OrderSummary({ items, subtotal, shippingCost, total }) {
               <p className="text-[13px] font-medium line-clamp-2">{item.name}</p>
               {item.color && <p className="text-[11.5px] text-ink-400">{item.color}</p>}
             </div>
-            <span className="text-[13px] font-semibold shrink-0">${(item.price * item.qty).toFixed(2)}</span>
+            <span className="text-[13px] font-semibold shrink-0">{formatPKR(item.price * item.qty)}</span>
           </div>
         ))}
       </div>
       <div className="flex flex-col gap-2.5 text-[14px] pt-4 border-t border-line">
         <div className="flex justify-between text-ink-600">
           <span>Subtotal</span>
-          <span>${subtotal.toFixed(2)}</span>
+          <span>{formatPKR(subtotal)}</span>
         </div>
         <div className="flex justify-between text-ink-600">
           <span>Shipping</span>
-          <span>{shippingCost === 0 ? 'Free' : `$${shippingCost.toFixed(2)}`}</span>
+          <span>{shippingCost === 0 ? 'Free' : formatPKR(shippingCost)}</span>
         </div>
         <div className="flex justify-between text-[16px] font-semibold pt-2.5 border-t border-line mt-1">
           <span>Total</span>
-          <span>${total.toFixed(2)}</span>
+          <span>{formatPKR(total)}</span>
         </div>
       </div>
     </div>

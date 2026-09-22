@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Search, Mail } from 'lucide-react';
 import { customers } from '@/data/customers';
+import { formatPKR } from '@/lib/currency';
 
 export default function AdminCustomersPage() {
   return (
@@ -30,7 +31,7 @@ export default function AdminCustomersPage() {
                 <p className="text-[11.5px] text-ink-400">Orders</p>
               </div>
               <div>
-                <p className="text-[15px] font-semibold">${c.spent}</p>
+                <p className="text-[15px] font-semibold">{formatPKR(c.spent)}</p>
                 <p className="text-[11.5px] text-ink-400">Spent</p>
               </div>
               <div>

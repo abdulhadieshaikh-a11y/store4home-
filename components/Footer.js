@@ -40,6 +40,7 @@ export default function Footer() {
           <ul className="flex flex-col gap-2.5 text-[14px] text-ink-200">
             <li><Link href="/track-order" className="hover:text-gold transition-colors">Track Order</Link></li>
             <li><Link href="/account" className="hover:text-gold transition-colors">My Account</Link></li>
+            <li><Link href="/admin" className="hover:text-gold transition-colors">Admin Dashboard</Link></li>
             <li><a href="#" className="hover:text-gold transition-colors">Shipping & Returns</a></li>
             <li><a href="#" className="hover:text-gold transition-colors">Contact Us</a></li>
           </ul>

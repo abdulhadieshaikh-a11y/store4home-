@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { orders } from '@/data/orders';
+import { formatPKR } from '@/lib/currency';
 import { PackageSearch, MapPin, LogOut, User } from 'lucide-react';
 
 export default function AccountPage() {
@@ -52,7 +53,7 @@ export default function AccountPage() {
                   <p className="text-[12.5px] text-ink-400">{o.date} &middot; {o.items.length} item(s)</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[14px] font-semibold">${o.total.toFixed(2)}</p>
+                  <p className="text-[14px] font-semibold">{formatPKR(o.total)}</p>
                   <p className="text-[12.5px] text-brand">{o.status}</p>
                 </div>
               </Link>

@@ -3,6 +3,7 @@ import { DollarSign, ShoppingCart, Users, Package, ArrowUpRight, ArrowRight } fr
 import { orders } from '@/data/orders';
 import { products } from '@/data/products';
 import { customers } from '@/data/customers';
+import { formatPKR } from '@/lib/currency';
 
 const weekly = [
   { day: 'Mon', value: 32 },
@@ -20,7 +21,7 @@ export default function AdminDashboard() {
   const maxWeekly = Math.max(...weekly.map((w) => w.value));
 
   const stats = [
-    { label: 'Total Revenue', value: `$${revenue.toFixed(2)}`, delta: '+12.4%', icon: DollarSign },
+    { label: 'Total Revenue', value: formatPKR(revenue), delta: '+12.4%', icon: DollarSign },
     { label: 'Orders', value: orders.length, delta: `${activeOrders} active`, icon: ShoppingCart },
     { label: 'Customers', value: customers.length, delta: '+2 this week', icon: Users },
     { label: 'Products', value: products.length, delta: '3 low stock', icon: Package },
@@ -76,7 +77,7 @@ export default function AdminDashboard() {
                   <p className="text-[13.5px] font-medium truncate">{p.name}</p>
                   <p className="text-[12px] text-ink-400">{p.reviews} sold</p>
                 </div>
-                <span className="text-[13.5px] font-semibold shrink-0">${p.price}</span>
+                <span className="text-[13.5px] font-semibold shrink-0">{formatPKR(p.price)}</span>
               </div>
             ))}
           </div>
@@ -114,7 +115,7 @@ export default function AdminDashboard() {
                   <td className="py-3">
                     <StatusBadge status={o.status} />
                   </td>
-                  <td className="py-3 text-right font-medium">${o.total.toFixed(2)}</td>
+                  <td className="py-3 text-right font-medium">{formatPKR(o.total)}</td>
                 </tr>
               ))}
             </tbody>

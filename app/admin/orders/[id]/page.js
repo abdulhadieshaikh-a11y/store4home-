@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, Circle } from 'lucide-react';
 import { getOrder } from '@/data/orders';
+import { formatPKR } from '@/lib/currency';
 import { StatusBadge } from '../../page';
 
 export default function AdminOrderDetail({ params }) {
@@ -30,13 +31,13 @@ export default function AdminOrderDetail({ params }) {
               {order.items.map((item) => (
                 <div key={item.id} className="flex justify-between text-[14px] py-2 border-b border-line last:border-0">
                   <span className="text-ink-600">{item.name} &times; {item.qty}</span>
-                  <span className="font-medium">${(item.price * item.qty).toFixed(2)}</span>
+                  <span className="font-medium">{formatPKR(item.price * item.qty)}</span>
                 </div>
               ))}
             </div>
             <div className="flex justify-between text-[15px] font-semibold pt-4 mt-2 border-t border-line">
               <span>Total</span>
-              <span>${order.total.toFixed(2)}</span>
+              <span>{formatPKR(order.total)}</span>
             </div>
           </div>
 

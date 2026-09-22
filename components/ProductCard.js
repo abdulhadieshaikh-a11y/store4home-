@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import StarRating from './StarRating';
 import { ShoppingBag } from 'lucide-react';
+import { formatPKR } from '@/lib/currency';
 
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
@@ -43,9 +44,9 @@ export default function ProductCard({ product }) {
       </Link>
       <StarRating rating={product.rating} reviews={product.reviews} />
       <div className="flex items-center gap-2 mt-1.5">
-        <span className="text-[15px] font-semibold">${product.price.toFixed(2)}</span>
+        <span className="text-[15px] font-semibold">{formatPKR(product.price)}</span>
         {product.compareAt && (
-          <span className="text-[13px] text-ink-400 line-through">${product.compareAt.toFixed(2)}</span>
+          <span className="text-[13px] text-ink-400 line-through">{formatPKR(product.compareAt)}</span>
         )}
       </div>
     </div>

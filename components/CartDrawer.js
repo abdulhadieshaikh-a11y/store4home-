@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { formatPKR } from '@/lib/currency';
 
 export default function CartDrawer() {
   const { items, drawerOpen, setDrawerOpen, updateQty, removeItem, subtotal } = useCart();
@@ -66,7 +67,7 @@ export default function CartDrawer() {
                           <Plus size={12} />
                         </button>
                       </div>
-                      <span className="text-[14px] font-semibold">${(item.price * item.qty).toFixed(2)}</span>
+                      <span className="text-[14px] font-semibold">{formatPKR(item.price * item.qty)}</span>
                     </div>
                   </div>
                 </div>
@@ -76,7 +77,7 @@ export default function CartDrawer() {
             <div className="border-t border-line px-6 py-5">
               <div className="flex items-center justify-between mb-1.5 text-[14.5px]">
                 <span className="text-ink-400">Subtotal</span>
-                <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                <span className="font-semibold">{formatPKR(subtotal)}</span>
               </div>
               <p className="text-[12.5px] text-ink-400 mb-4">Shipping and taxes calculated at checkout.</p>
               <Link

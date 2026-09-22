@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Minus, Plus, X, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { formatPKR } from '@/lib/currency';
 
 export default function CartPage() {
   const { items, updateQty, removeItem, subtotal } = useCart();
@@ -43,7 +44,7 @@ export default function CartPage() {
                 <div className="min-w-0">
                   <h3 className="text-[14.5px] font-medium line-clamp-2">{item.name}</h3>
                   {item.color && <p className="text-[12.5px] text-ink-400 mt-1">Color: {item.color}</p>}
-                  <p className="text-[13.5px] font-semibold mt-1">${item.price.toFixed(2)}</p>
+                  <p className="text-[13.5px] font-semibold mt-1">{formatPKR(item.price)}</p>
                 </div>
               </div>
               <div className="flex items-center border border-line rounded-full w-fit">
@@ -55,7 +56,7 @@ export default function CartPage() {
                   <Plus size={13} />
                 </button>
               </div>
-              <span className="text-[14.5px] font-semibold text-right">${(item.price * item.qty).toFixed(2)}</span>
+              <span className="text-[14.5px] font-semibold text-right">{formatPKR(item.price * item.qty)}</span>
               <button onClick={() => removeItem(item.key)} className="text-ink-400 hover:text-ink justify-self-end" aria-label="Remove item">
                 <X size={16} />
               </button>
@@ -71,16 +72,16 @@ export default function CartPage() {
           <div className="flex flex-col gap-3 text-[14px] pb-5 border-b border-line">
             <div className="flex justify-between text-ink-600">
               <span>Subtotal</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>{formatPKR(subtotal)}</span>
             </div>
             <div className="flex justify-between text-ink-600">
               <span>Shipping</span>
-              <span>{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
+              <span>{shipping === 0 ? 'Free' : formatPKR(shipping)}</span>
             </div>
           </div>
           <div className="flex justify-between text-[16px] font-semibold py-5">
             <span>Total</span>
-            <span>${total.toFixed(2)}</span>
+            <span>{formatPKR(total)}</span>
           </div>
           <Link
             href="/checkout"

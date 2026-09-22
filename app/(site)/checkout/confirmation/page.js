@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, ArrowRight, PackageSearch } from 'lucide-react';
 import { useCheckout } from '@/context/CheckoutContext';
+import { formatPKR } from '@/lib/currency';
 
 export default function ConfirmationStep() {
   const { completedOrder } = useCheckout();
@@ -28,7 +29,10 @@ export default function ConfirmationStep() {
         Thank you, {shipping?.fullName?.split(' ')[0] || 'there'} — your order is on its way to being packed.
       </p>
       <p className="text-ink-400 text-[13.5px] mb-10">
-        A confirmation has been sent to {shipping?.email}. Order number <strong className="text-ink">{id}</strong>
+        {completedOrder.emailSent
+          ? `A confirmation has been sent to ${shipping?.email}. `
+          : `Your order is confirmed, but we could not send the email to ${shipping?.email}. `}
+        Order number <strong className="text-ink">{id}</strong>
       </p>
 
       <div className="bg-white border border-line rounded p-6 text-left mb-8">
@@ -49,7 +53,7 @@ export default function ConfirmationStep() {
               <span className="text-ink-600">
                 {item.name} {item.color ? `(${item.color})` : ''} &times; {item.qty}
               </span>
-              <span className="font-medium">${(item.price * item.qty).toFixed(2)}</span>
+              <span className="font-medium">{formatPKR(item.price * item.qty)}</span>
             </div>
           ))}
         </div>
@@ -57,15 +61,15 @@ export default function ConfirmationStep() {
         <div className="flex flex-col gap-2 pt-4 border-t border-line text-[14px]">
           <div className="flex justify-between text-ink-600">
             <span>Subtotal</span>
-            <span>${subtotal.toFixed(2)}</span>
+            <span>{formatPKR(subtotal)}</span>
           </div>
           <div className="flex justify-between text-ink-600">
             <span>Shipping</span>
-            <span>{shippingCost === 0 ? 'Free' : `$${shippingCost.toFixed(2)}`}</span>
+            <span>{shippingCost === 0 ? 'Free' : formatPKR(shippingCost)}</span>
           </div>
           <div className="flex justify-between text-[16px] font-semibold pt-2 border-t border-line mt-1">
             <span>Total</span>
-            <span>${total.toFixed(2)}</span>
+            <span>{formatPKR(total)}</span>
           </div>
         </div>
 
