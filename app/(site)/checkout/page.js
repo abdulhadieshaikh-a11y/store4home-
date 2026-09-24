@@ -8,6 +8,7 @@ import { ArrowRight } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatPKR } from '@/lib/currency';
 import { useCheckout } from '@/context/CheckoutContext';
+import { shippingFor } from '@/lib/orders';
 
 export default function ShippingStep() {
   const { items, subtotal } = useCart();
@@ -23,7 +24,7 @@ export default function ShippingStep() {
     notes: '',
   });
 
-  const shippingCost = subtotal > 100 || subtotal === 0 ? 0 : 8;
+  const shippingCost = shippingFor(subtotal);
   const total = subtotal + shippingCost;
 
   function update(field, value) {

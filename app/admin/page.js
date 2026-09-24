@@ -1,9 +1,15 @@
 import Link from 'next/link';
 import { DollarSign, ShoppingCart, Users, Package, ArrowUpRight, ArrowRight } from 'lucide-react';
-import { orders } from '@/data/orders';
 import { products } from '@/data/products';
 import { customers } from '@/data/customers';
-import { formatPKR } from '@/lib/currency';
+import { formatPKR, formatRs } from '@/lib/currency';
+import { paymentMethodLabel } from '@/lib/orders';
+import { getOrderStats, listOrders } from '@/lib/server/orders';
+import PaymentStatusBadge from '@/components/admin/PaymentStatusBadge';
+import DataError from '@/components/admin/DataError';
+import StatusBadge from '@/components/admin/StatusBadge';
+
+export const dynamic = 'force-dynamic';
 
 const weekly = [
   { day: 'Mon', value: 32 },
@@ -15,20 +21,28 @@ const weekly = [
   { day: 'Sun', value: 66 },
 ];
 
-export default function AdminDashboard() {
-  const revenue = orders.filter((o) => o.status !== 'Cancelled').reduce((s, o) => s + o.total, 0);
-  const activeOrders = orders.filter((o) => o.status !== 'Delivered' && o.status !== 'Cancelled').length;
+export default async function AdminDashboard() {
+  let orders = [];
+  let orderStats = { order_count: 0, revenue: 0, active_count: 0, awaiting_payment: 0 };
+  let loadError = null;
+  try {
+    [orders, orderStats] = await Promise.all([listOrders({ limit: 5 }), getOrderStats()]);
+  } catch (error) {
+    console.error('[admin] dashboard load failed:', error);
+    loadError = error;
+  }
   const maxWeekly = Math.max(...weekly.map((w) => w.value));
 
   const stats = [
-    { label: 'Total Revenue', value: formatPKR(revenue), delta: '+12.4%', icon: DollarSign },
-    { label: 'Orders', value: orders.length, delta: `${activeOrders} active`, icon: ShoppingCart },
+    { label: 'Total Revenue', value: formatRs(orderStats.revenue), delta: `${orderStats.awaiting_payment} awaiting payment`, icon: DollarSign },
+    { label: 'Orders', value: orderStats.order_count, delta: `${orderStats.active_count} active`, icon: ShoppingCart },
     { label: 'Customers', value: customers.length, delta: '+2 this week', icon: Users },
     { label: 'Products', value: products.length, delta: '3 low stock', icon: Package },
   ];
 
   return (
     <div>
+      {loadError && <DataError error={loadError} />}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
         {stats.map(({ label, value, delta, icon: Icon }) => (
           <div key={label} className="bg-white border border-line rounded p-5">
@@ -98,46 +112,40 @@ export default function AdminDashboard() {
                 <th className="pb-3 font-medium">Order</th>
                 <th className="pb-3 font-medium">Customer</th>
                 <th className="pb-3 font-medium">Date</th>
+                <th className="pb-3 font-medium">Payment</th>
                 <th className="pb-3 font-medium">Status</th>
                 <th className="pb-3 font-medium text-right">Total</th>
               </tr>
             </thead>
             <tbody>
-              {orders.slice(0, 5).map((o) => (
+              {orders.map((o) => (
                 <tr key={o.id} className="border-b border-line last:border-0">
-                  <td className="py-3">
-                    <Link href={`/admin/orders/${o.id}`} className="font-semibold text-brand hover:underline">
-                      {o.id}
+                  <td className="py-3 pr-4">
+                    <Link href={`/admin/orders/${o.order_number}`} className="font-semibold text-brand hover:underline whitespace-nowrap">
+                      {o.order_number}
                     </Link>
                   </td>
-                  <td className="py-3">{o.customer}</td>
-                  <td className="py-3 text-ink-400">{o.date}</td>
-                  <td className="py-3">
+                  <td className="py-3 pr-4">{o.customer_name}</td>
+                  <td className="py-3 pr-4 text-ink-400 whitespace-nowrap">{new Date(o.created_at).toISOString().slice(0, 10)}</td>
+                  <td className="py-3 pr-4 whitespace-nowrap">
+                    <span className="text-ink-600 mr-2">{paymentMethodLabel(o.payment_method)}</span>
+                    <PaymentStatusBadge status={o.payment_status} />
+                  </td>
+                  <td className="py-3 pr-4">
                     <StatusBadge status={o.status} />
                   </td>
-                  <td className="py-3 text-right font-medium">{formatPKR(o.total)}</td>
+                  <td className="py-3 text-right font-medium whitespace-nowrap">{formatRs(o.total)}</td>
                 </tr>
               ))}
+              {!loadError && orders.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-ink-400">No orders yet.</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
     </div>
-  );
-}
-
-export function StatusBadge({ status }) {
-  const styles = {
-    Processing: 'bg-gold-50 text-gold-700',
-    Confirmed: 'bg-brand-50 text-brand',
-    Shipped: 'bg-brand-50 text-brand',
-    'Out for Delivery': 'bg-brand-50 text-brand',
-    Delivered: 'bg-brand text-white',
-    Cancelled: 'bg-ink-100 text-ink-600',
-  };
-  return (
-    <span className={`inline-block px-2.5 py-1 rounded-full text-[12px] font-semibold ${styles[status] || 'bg-ink-100 text-ink-600'}`}>
-      {status}
-    </span>
   );
 }

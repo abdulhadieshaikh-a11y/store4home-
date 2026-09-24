@@ -37,25 +37,50 @@ npm run build
 npm run start
 ```
 
-## Order confirmation emails
+## Orders, payments, emails and admin notifications
 
-Order confirmation emails are sent through [Resend](https://resend.com). Copy `.env.example` to `.env.local`, add a Resend API key, and set `RESEND_FROM_EMAIL` to a sender address from a verified Resend domain:
+Orders are stored in your **Supabase Postgres** database. The Next.js server connects with a
+server-only connection string; nothing database- or email-related is exposed to the browser.
 
-```bash
-RESEND_API_KEY=re_your_api_key
-RESEND_FROM_EMAIL=Store4Home <orders@your-verified-domain.com>
-```
+### Setup
 
-Without these values, orders can still be placed, but the confirmation page will report that the email could not be sent. For local testing, Resend's `onboarding@resend.dev` sender only delivers to the email address belonging to the Resend account.
+1. **Apply the migration** in `supabase/migrations/` to your existing Supabase project
+   (Supabase dashboard -> SQL Editor -> paste the file -> Run, or `supabase db push`).
+   It only creates new tables (`orders`, `order_items`, `order_status_history`,
+   `admin_notifications`, `email_log`, `store_settings`) with Row Level Security enabled and
+   no public policies. It never modifies existing tables; if a table with the same name
+   already exists it aborts without changing anything.
+2. **Set the environment variables** from `.env.example` (locally in `.env.local`, in production
+   in Vercel -> Project -> Settings -> Environment Variables).
+3. Sign in at `/admin/login` with `ADMIN_PASSWORD`, open **Settings -> Payments & notifications**,
+   and fill in your bank / Easypaisa details and the store-owner email.
 
-## Notes on data
+### How it works
 
-This project ships with realistic mock data (`/data/*.js`) for products, categories, orders and customers, and all product images are served from Unsplash. There is no real backend or database wired up yet:
-
-- The cart persists for the current browser tab (sessionStorage) and clears after checkout.
-- Checkout and the admin dashboard's "save" actions demonstrate the full UI flow but don't persist changes — hook them up to your own API/database (e.g. via Next.js Route Handlers, Prisma, or a headless commerce backend) to make them permanent.
-- No real payment processor is connected; the payment step is a UI-only selection between Card, Cash on Delivery and Mobile Wallet.
-- Prices are displayed in Pakistani Rupees (PKR) using the fixed demo conversion rate in `lib/currency.js`; replace this with live PKR product data before production.
+- **Checkout** (`POST /api/orders`): validates input and recalculates prices on the server,
+  then writes the order, items, audit history and an admin notification in one transaction.
+  Each checkout sends an idempotency key, so double clicks, refreshes and network retries
+  return the original order instead of creating a duplicate.
+- **Payment methods**: Cash on Delivery is always available. Bank Transfer and Easypaisa are
+  offered only once configured in admin settings; their orders start with payment status
+  *Pending* until an admin marks them *Paid*. Card payments are hidden until an online gateway
+  adapter is added (`lib/payments/gateways.js`); card orders can only be marked paid by a
+  signature-verified webhook at `/api/payments/webhook/<provider>`.
+- **Order status** (Processing -> Confirmed -> Shipped -> Out for Delivery -> Delivered, or
+  Cancelled) and **payment status** (Pending, Paid, Failed, Refunded, Cancelled) are separate.
+  Every change is recorded in `order_status_history`.
+- **Emails** (Resend): customer confirmation, store-owner new-order alert, customer status
+  updates (Confirmed / Shipped / Out for Delivery / Delivered / Cancelled) and payment updates
+  (Paid / Failed / Refunded). Every email is logged in `email_log` and sent at most once per
+  order and status. A failed email never affects the order; failures show on the admin order
+  page with a **Retry** button.
+- **Admin notifications**: new orders create a persistent notification shown in the dashboard
+  bell (unread count, mark as read, mark all as read). The bell refreshes every 20 seconds.
+- **Order tracking** (`/track-order`) needs the order number plus the checkout email, or the
+  private link from the confirmation page / email.
+- **Admin access**: `/admin` and `/api/admin/*` require signing in with `ADMIN_PASSWORD`
+  (signed, HttpOnly session cookie, 12 hours). If the admin variables are not set, the admin
+  area stays locked.
 
 ## Project structure
 
