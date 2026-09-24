@@ -26,6 +26,8 @@ export default function AdminShell({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 
+  if (pathname === '/admin/login') return <div className="min-h-screen bg-paper">{children}</div>;
+
   return (
     <div className="flex min-h-screen bg-paper">
       <AdminSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />

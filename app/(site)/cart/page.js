@@ -5,10 +5,11 @@ import Link from 'next/link';
 import { Minus, Plus, X, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatPKR } from '@/lib/currency';
+import { shippingFor } from '@/lib/orders';
 
 export default function CartPage() {
   const { items, updateQty, removeItem, subtotal } = useCart();
-  const shipping = subtotal > 100 || subtotal === 0 ? 0 : 8;
+  const shipping = shippingFor(subtotal);
   const total = subtotal + shipping;
 
   if (items.length === 0) {
