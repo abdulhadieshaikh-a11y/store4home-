@@ -9,7 +9,10 @@ export default function DataError({ error }) {
       <span>
         {notConfigured
           ? 'The order database is not configured. Set DATABASE_URL and apply the migration in supabase/migrations.'
-          : 'Could not load orders from the database. Check the server logs and database connection.'}
+          : 'Could not load orders from the database. Check the server logs and database connection.'}{' '}
+        <a href="/api/admin/db-health" target="_blank" rel="noreferrer" className="underline font-semibold">
+          Run database check
+        </a>
       </span>
     </div>
   );
