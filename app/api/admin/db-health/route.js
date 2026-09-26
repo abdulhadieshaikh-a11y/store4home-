@@ -18,16 +18,27 @@ export async function GET(request) {
   const started = Date.now();
   try {
     const sql = getSql();
-    const [row] = await sql`
-      select current_user as db_user,
-        ${sql.array(TABLES)}::text[] <@ array(select tablename::text from pg_tables where schemaname = 'public') as tables_present
+    const [{ db_user: dbUser }] = await sql`select current_user as db_user`;
+    // Each name is its own text parameter ($1..$6); no array parameter is used, because
+    // postgres.js can send an array as plain text on a brand-new connection.
+    const found = await sql`
+      select tablename::text as name from pg_tables
+      where schemaname = 'public' and tablename in ${sql(TABLES)}
     `;
+    const present = new Set(found.map((r) => r.name));
+    const missingTables = TABLES.filter((t) => !present.has(t));
+    if (missingTables.length > 0) {
+      return NextResponse.json(
+        { ok: false, latencyMs: Date.now() - started, config, database: { user: dbUser, tablesPresent: false, missingTables } },
+        { status: 503 },
+      );
+    }
     const [{ orders }] = await sql`select count(*)::int as orders from orders`;
     return NextResponse.json({
       ok: true,
       latencyMs: Date.now() - started,
       config,
-      database: { user: row.db_user, tablesPresent: row.tables_present, orders },
+      database: { user: dbUser, tablesPresent: true, missingTables: [], orders },
     });
   } catch (error) {
     logDatabaseError('db-health', error);
