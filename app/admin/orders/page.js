@@ -1,6 +1,7 @@
 import { listOrders } from '@/lib/server/orders';
 import OrdersTable from '@/components/admin/OrdersTable';
 import DataError from '@/components/admin/DataError';
+import { logDatabaseError } from '@/lib/server/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,7 +11,7 @@ export default async function AdminOrdersPage() {
   try {
     orders = await listOrders({ limit: 500 });
   } catch (error) {
-    console.error('[admin] orders load failed:', error);
+    logDatabaseError('admin-orders', error);
     loadError = error;
   }
   // Only plain serialisable fields go to the client component.

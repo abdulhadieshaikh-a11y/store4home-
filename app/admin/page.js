@@ -8,6 +8,7 @@ import { getOrderStats, listOrders } from '@/lib/server/orders';
 import PaymentStatusBadge from '@/components/admin/PaymentStatusBadge';
 import DataError from '@/components/admin/DataError';
 import StatusBadge from '@/components/admin/StatusBadge';
+import { logDatabaseError } from '@/lib/server/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,7 +29,7 @@ export default async function AdminDashboard() {
   try {
     [orders, orderStats] = await Promise.all([listOrders({ limit: 5 }), getOrderStats()]);
   } catch (error) {
-    console.error('[admin] dashboard load failed:', error);
+    logDatabaseError('admin-dashboard', error);
     loadError = error;
   }
   const maxWeekly = Math.max(...weekly.map((w) => w.value));

@@ -24,23 +24,34 @@ export default function NotificationBell() {
   const [error, setError] = useState(false);
   const ref = useRef(null);
 
+  // After a failure, back off (up to 5 minutes) instead of retrying every 20 seconds:
+  // repeated failed database logins keep Supabase's connection block in place.
+  const retryAt = useRef(0);
+  const failures = useRef(0);
+
   const load = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/notifications', { cache: 'no-store' });
       if (!response.ok) throw new Error('failed');
       setData(await response.json());
       setError(false);
+      failures.current = 0;
+      retryAt.current = 0;
     } catch (e) {
       setError(true);
+      failures.current += 1;
+      retryAt.current = Date.now() + Math.min(POLL_MS * 2 ** failures.current, 5 * 60 * 1000);
     }
   }, []);
 
   useEffect(() => {
     load();
     const timer = setInterval(() => {
-      if (document.visibilityState === 'visible') load();
+      if (document.visibilityState === 'visible' && Date.now() >= retryAt.current) load();
     }, POLL_MS);
-    const onFocus = () => load();
+    const onFocus = () => {
+      if (Date.now() >= retryAt.current) load();
+    };
     window.addEventListener('focus', onFocus);
     return () => {
       clearInterval(timer);
