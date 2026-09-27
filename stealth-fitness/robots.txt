@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# After publishing, replace YOUR-DOMAIN and uncomment:
+# Sitemap: https://YOUR-DOMAIN/sitemap.xml
